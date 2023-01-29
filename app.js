@@ -60,7 +60,9 @@ const db = mysql.createConnection(
     }
     
 viewDepartments = () => {
-    const sql = ' SELECT department.id, department.+name AS department from department';
+    const sql = 
+    `SELECT department.id, department.+name 
+    AS department from department`;
 
     db.promise().query(sql, (err, rows) => {
         if (err) throw err;
@@ -70,7 +72,10 @@ viewDepartments = () => {
 };
 
 viewRoles = () => {
-    const sql = 'SELECT title.role, id.role, department.name, salary.role AS department FROM role INNER JOIN department ON role.department_id = department.id';
+    const sql = 
+    `SELECT title.role, id.role, department.name, salary.role 
+    AS department FROM role 
+    INNER JOIN department ON role.department_id = department.id`;
     db.promise().query(sql, (err, rows) => {
         if (err) throw err;
         console.table(rows);
@@ -79,7 +84,13 @@ viewRoles = () => {
 };
 
 viewEmployees = () => {
-    const sql = 'SELECT employee.id, employee.first_name, employee.last_name, employee.title, departement.name AS department, employee.salary CONCAT (manager.first_name, " ", manager.last_name) AS manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON employee.manager_id = manager.id';
+    const sql = 
+    `SELECT employee.id, employee.first_name, employee.last_name, employee.title, departement.name 
+    AS department, employee.salary 
+    CONCAT (manager.first_name, " ", manager.last_name) 
+    AS manager FROM employee 
+    LEFT JOIN role ON employee.role_id = role.id 
+    LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON employee.manager_id = manager.id`;
 
     db.promise().query(sql, (err, rows) => {
         if (err) throw err;
@@ -89,17 +100,165 @@ viewEmployees = () => {
 };
 
 addDepartment = () => {
+    inquirer.prompt ([
+    {
+        type: 'input',
+        name: 'addDep',
+        message: 'What is the name of the department you would like to add?',
+        validate: addDep => {
+            if (addDep) {
+                return true;
+            } else {
+                console.log('Please enter a name for the department you would like to add.');
+                return false;
+            }
+          }
+        } .then( answer => {
+            const sql = `INSERT INTO department (name)
+            VALUES (?)`
 
-};
+            connection.query(sql, answer.addDept, (err, result) => {
+            if (err) throw err;
+            viewDepartments();
+    });
+        })
+      ])
+    }
+
 
 addRoll = () => {
+    inquirer.prompt ([
+        {
+            type: 'input',
+            name: 'title',
+            message: 'What is the name of the role youd like to add?',
+            validate: addRole => {
+                if (addRole) {
+                    return true;
+                } else {
+                    console.log('Please enter a name for the role you would like to add.');
+                    return false;
+                }
+              }
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'What is the salary for the new roll youd would like to add?',
+            validate: addRole => {
+                if (addRole) {
+                    return true;
+                } else {
+                    console.log('Please enter a salary for the role you would like to add.');
+                    return false;
+                }
+              }
+        },
+        {
+            type: 'input',
+            name: 'department_id',
+            message: 'What department will new roll youd would like to add be in?',
+            validate: addRole => {
+                if (addRole) {
+                    return true;
+                } else {
+                    console.log('Please enter a department for the role you would like to add.');
+                    return false;
+                }
+              }
+        },
+    ])
+//add to db?
+//     const sql = `INSERT INTO role (title, salary, department_id)
+//     VALUES (?)`
 
-};
+//     db.promise().query(sql, (err, rows) => {
+//         if (err) throw err;
+//         console.table(rows);
+//         viewRolls();
+//     });
+ };
 
 addEmployee = () => {
+    inquirer.prompt ([
+        {
+            type: 'input',
+            name: 'first_name',
+            message: 'What is the new employees first name?',
+            validate: addRole => {
+                if (addRole) {
+                    return true;
+                } else {
+                    console.log('Please enter the new employees first name.');
+                    return false;
+                }
+              }
+        },
+        {
+            type: 'input',
+            name: 'last_name',
+            message: 'What is the new employees last name?',
+            validate: addRole => {
+                if (addRole) {
+                    return true;
+                } else {
+                    console.log('Please enter the new employees last name.');
+                    return false;
+                }
+              }
+        },
+        {
+            type: 'input',
+            name: 'department_id',
+            message: 'What department will the new employee be in?',
+            validate: addRole => {
+                if (addRole) {
+                    return true;
+                } else {
+                    console.log('Please enter the new employees department.');
+                    return false;
+                }
+              }
+        },
+        {
+            type: 'input',
+            name: 'manager_id',
+            message: 'Who is the new employees manager?',
+            validate: addRole => {
+                if (addRole) {
+                    return true;
+                } else {
+                    console.log('Please enter the new employees manager.');
+                    return false;
+                }
+              }
+        },
+        
+    ])
+    // add to db connect dept to roll ?
+    // const sql = `INSERT INTO employee (first_name, last_name, role_id, department_id, manager_id))
+    // VALUES (?)`
 
-}
-
-updateEmployee = () => {
-
+    // db.promise().query(sql, (err, rows) => {
+    //     if (err) throw err;
+    //     console.table(rows);
+    //     showMenu();
+    // });
 };
+
+//add select inquierer?
+// updateEmployee = () => {
+//     const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+  
+    // db.query(sql, (err, result) => {
+    //   if (err) {
+    //     res.status(400).json({ error: err.message });
+    //   } else if (!result.affectedRows) {
+    //     res.json({
+    //       message: 'Employee not found'
+    //     }.then, {
+    //         showMenu();
+    //     });
+//       }
+//     });
+// };
