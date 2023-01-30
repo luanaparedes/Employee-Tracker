@@ -26,7 +26,7 @@ db.connect(() => {
                     {name: "View all roles", value: "viewRoles"},
                     {name: "View all employees", value: "viewEmployees"},
                     {name: "Add a department", value: "addDepartment"},
-                    {name: "Add a role", value: "addRoll"},
+                    {name: "Add a role", value: "addRole"},
                     {name: "Add an employee", value: "addEmployee"},
                     {name: "Update an employee roll", value: "updateEmployee"},
                 ]
@@ -43,8 +43,8 @@ db.connect(() => {
                 viewEmployees()
             } else if(menu === "addDepartment") {
                 addDepartment()
-            } else if(menu === "addRoll") {
-                addRoll();
+            } else if(menu === "addRole") {
+                addRole();
             } else if(menu === "addEmployee") {
                 addEmployee();
             } else if(menu === "updateEmployee") {
@@ -107,7 +107,9 @@ addDepartment = () => {
                 return false;
             }
           }
-        } .then( answer => {
+        }
+    ]) 
+    .then(answer => {
             const sql = `INSERT INTO department (name)
             VALUES (?)`
 
@@ -116,11 +118,10 @@ addDepartment = () => {
             viewDepartments();
     });
         })
-      ])
-    }
+    };
 
 
-addRoll = () => {
+addRole = () => {
     inquirer.prompt ([
         {
             type: 'input',
@@ -162,16 +163,16 @@ addRoll = () => {
               }
         },
     ])
-//add to db?
-//     const sql = `INSERT INTO role (title, salary, department_id)
-//     VALUES (?)`
+    .then(answer => {
+        const sql = `INSERT INTO role (title, salary, department_id)
+        VALUES (?)`
 
-//     db.promise().query(sql, (err, rows) => {
-//         if (err) throw err;
-//         console.table(rows);
-//         viewRolls();
-//     });
- };
+        connection.query(sql, answer.addRole, (err, result) => {
+        if (err) throw err;
+        viewRoles();
+});
+    })
+};
 
 addEmployee = () => {
     inquirer.prompt ([
@@ -229,16 +230,16 @@ addEmployee = () => {
         },
         
     ])
-    // add to db connect dept to roll ?
-    // const sql = `INSERT INTO employee (first_name, last_name, role_id, department_id, manager_id))
-    // VALUES (?)`
+    .then(answer => {
+        const sql = `INSERT INTO employee (first_name, last_name, role_id, department_id, manager_id)
+        VALUES (?)`
 
-    // db.promise().query(sql, (err, rows) => {
-    //     if (err) throw err;
-    //     console.table(rows);
-    //     showMenu();
-    // });
-};
+        connection.query(sql, answer.addEmployee, (err, result) => {
+        if (err) throw err;
+        viewEmployees();
+});
+    })
+}
 
 //add select inquierer?
 // updateEmployee = () => {
