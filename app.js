@@ -1,28 +1,22 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 
-const PORT = process.env.PORT || 3001;
-const app = express();
-
-// Express middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
-
 // Connect to database
 const db = mysql.createConnection(
   {
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'password',
     database: 'employees_db'
   },
   console.log(`Connected to the employees_db database.`)
 );
-
+db.connect(() => {
+    showMenu();
+})
 
   const showMenu = () => {
-        inquier.prompt = ([
+    inquirer.prompt([
             {
                 type: "list",
                 name: "menu",
@@ -41,19 +35,19 @@ const db = mysql.createConnection(
         .then((answers) => {
             const {menu} = answers;
 
-            if (menu.value === "viewDepartments") {
+            if (menu === "viewDepartments") {
                 viewDepartments();
-            } else if (menu.value === "viewRoles") {
+            } else if (menu === "viewRoles") {
                 viewRoles();
-            } else if(menu.value === "viewEmployees") {
+            } else if(menu === "viewEmployees") {
                 viewEmployees()
-            } else if(menu.value === "addDepartment") {
+            } else if(menu === "addDepartment") {
                 addDepartment()
-            } else if(menu.value === "addRoll") {
+            } else if(menu === "addRoll") {
                 addRoll();
-            } else if(menu.value === "addEmployee") {
+            } else if(menu === "addEmployee") {
                 addEmployee();
-            } else if(menu.value === "updateEmployee") {
+            } else if(menu === "updateEmployee") {
                 updateEmployee();
             }
         })
@@ -61,10 +55,10 @@ const db = mysql.createConnection(
     
 viewDepartments = () => {
     const sql = 
-    `SELECT department.id, department.+name 
+    `SELECT department.id, department.name 
     AS department from department`;
 
-    db.promise().query(sql, (err, rows) => {
+    db.query(sql, (err, rows) => {
         if (err) throw err;
         console.table(rows);
         showMenu();
@@ -76,7 +70,7 @@ viewRoles = () => {
     `SELECT title.role, id.role, department.name, salary.role 
     AS department FROM role 
     INNER JOIN department ON role.department_id = department.id`;
-    db.promise().query(sql, (err, rows) => {
+    db.query(sql, (err, rows) => {
         if (err) throw err;
         console.table(rows);
         showMenu();
@@ -92,7 +86,7 @@ viewEmployees = () => {
     LEFT JOIN role ON employee.role_id = role.id 
     LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON employee.manager_id = manager.id`;
 
-    db.promise().query(sql, (err, rows) => {
+    db.query(sql, (err, rows) => {
         if (err) throw err;
         console.table(rows);
         showMenu();
