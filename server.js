@@ -1,6 +1,5 @@
 const express = require('express');
 const mysql = require('mysql2');
-// const PORT?
 const app = express();
 const inquirer = require('inquirer');
 
@@ -15,3 +14,5 @@ const db = mysql.createConnection(
     },
     console.log(`Connected to the employees_db database.`)
   );
+
+  //connections

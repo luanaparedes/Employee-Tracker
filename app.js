@@ -14,7 +14,7 @@ const db = mysql.createConnection(
 db.connect(() => {
     showMenu();
 })
-
+// show menu options 
   const showMenu = () => {
     inquirer.prompt([
             {
@@ -52,7 +52,7 @@ db.connect(() => {
             }
         })
     }
-    
+//functions for each menu option    
 viewDepartments = () => {
     const sql = 
     `SELECT department.id, department.name 
@@ -67,7 +67,7 @@ viewDepartments = () => {
 
 viewRoles = () => {
     const sql = 
-    `SELECT title.role, id.role, department.name, salary.role 
+    `SELECT role.title, role.id, role.salary, department.name 
     AS department FROM role 
     INNER JOIN department ON role.department_id = department.id`;
     db.query(sql, (err, rows) => {
@@ -76,13 +76,13 @@ viewRoles = () => {
         showMenu();
     });
 };
-
+//fix this
 viewEmployees = () => {
     const sql = 
-    `SELECT employee.id, employee.first_name, employee.last_name, employee.title, departement.name 
-    AS department, employee.salary 
-    CONCAT (manager.first_name, " ", manager.last_name) 
-    AS manager FROM employee 
+    `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name 
+    AS department, role.salary, 
+    CONCAT (manager.first_name, " ", manager.last_name)
+    AS managerName FROM employee 
     LEFT JOIN role ON employee.role_id = role.id 
     LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON employee.manager_id = manager.id`;
 
@@ -111,9 +111,9 @@ addDepartment = () => {
     ]) 
     .then(answer => {
             const sql = `INSERT INTO department (name)
-            VALUES (?)`
+            VALUES (?)`;
 
-            connection.query(sql, answer.addDept, (err, result) => {
+            db.query(sql, answer.addDep, (err, result) => {
             if (err) throw err;
             viewDepartments();
     });
@@ -165,9 +165,9 @@ addRole = () => {
     ])
     .then(answer => {
         const sql = `INSERT INTO role (title, salary, department_id)
-        VALUES (?)`
+        VALUES (?,?,?)`
 
-        connection.query(sql, answer.addRole, (err, result) => {
+        db.query(sql, [answer.title, answer.salary, answer.department_id], (err, result) => {
         if (err) throw err;
         viewRoles();
 });
@@ -231,21 +231,21 @@ addEmployee = () => {
         
     ])
     .then(answer => {
-        const sql = `INSERT INTO employee (first_name, last_name, role_id, department_id, manager_id)
-        VALUES (?)`
+        const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+        VALUES (?,?,?,?)`
 
-        connection.query(sql, answer.addEmployee, (err, result) => {
+        db.query(sql, [answer.first_name, answer.last_name, answer.role_id, answer.manager_id], (err, result) => {
         if (err) throw err;
         viewEmployees();
 });
     })
 }
 
-//add select inquierer?
+
 updateEmployee = () => {
     const employeesSql = 'SELECT * FROM employee'
 
-    connection.querey(employeesSql, (err, data) => {
+    db.query(employeesSql, (err, data) => {
         if (err) throw err;
 
         const employeeList = data.map(({ id, first_name, last_name }) => ({ name: first_name + " "+ last_name, value: id }));
@@ -265,7 +265,7 @@ updateEmployee = () => {
 
         const roleSql = `SELECT * FROM role`;
 
-        connection.promise().query(roleSql, (err, data) => {
+        db.query(roleSql, (err, data) => {
           if (err) throw err; 
 
           const roles = data.map(({ id, title }) => ({ name: title, value: id }));
@@ -287,15 +287,14 @@ updateEmployee = () => {
                 params[1] = employee 
 
                 const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
-                connection.query(sql, params, (err, result) => {
+                db.query(sql, params, (err, result) => {
                     if (err) throw err;
                   console.log("Employee has been updated!");
                 
-                  showEmployees();
+                  viewEmployees();
                 });
             });
           });
         });
       });
     };
-    
